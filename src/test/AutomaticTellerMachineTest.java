@@ -64,6 +64,23 @@ public class AutomaticTellerMachineTest {
     }
 
     @Test
+    public void withdrawalRequestsChecker() {
+        AutomaticTellerMachine tester = new AutomaticTellerMachine();
+        int [] bills = {1,0,0,1,1};
+        assertArrayEquals(bills, tester.withdrawalRequest(151));
+
+        setArray(bills, 3, 0, 0 ,0 ,1);
+        assertArrayEquals(bills, tester.withdrawalRequest(103));
+
+        setArray(bills, 4, 1, 4 ,1 ,0);
+        assertArrayEquals(bills, tester.withdrawalRequest(99));
+
+        tester.setATMState(100, 100, 100, 50 , 50);
+        setArray(bills,0, 0, 1, 50, 50);
+        assertArrayEquals(bills, tester.withdrawalRequest(7510));
+    }
+
+    @Test
     public void multipleWithdrawalRequestsChecker() {
         AutomaticTellerMachine tester = new AutomaticTellerMachine();
         int[] bills = new int[5];
@@ -84,4 +101,5 @@ public class AutomaticTellerMachineTest {
         setArray(bills, 3, 1, 1, 1, 9);
         assertArrayEquals(bills, tester.withdrawalRequest(968));
     }
+
 }
