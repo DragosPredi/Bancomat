@@ -1,14 +1,14 @@
 package main.bills;
 
-public class FiveRon extends BankNote {
+public class FiveRon extends Bill {
     public FiveRon() {
-        value = 5;
+        valueOfBill = 5;
     }
 
     @Override
     public String toString() {
         return "FiveRon{" +
-                "value=" + value +
+                "value=" + valueOfBill +
                 '}';
     }
 }
