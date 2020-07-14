@@ -10,7 +10,7 @@ import org.junit.Test;
 
 
 public class AutomaticTellerMachineTest {
-    public void setArray(int []arr, int one, int five, int ten, int fifty, int oneH){
+    public void setArray(int[] arr, int one, int five, int ten, int fifty, int oneH) {
         arr[0] = one;
         arr[1] = five;
         arr[2] = ten;
@@ -18,18 +18,22 @@ public class AutomaticTellerMachineTest {
         arr[4] = oneH;
     }
 
-    @Test
-    public void initialStateChecker(){
-        AutomaticTellerMachine tester = new AutomaticTellerMachine();
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Initial state for 1 RON is faulty");
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Initial state for 5 RON is faulty");
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.TEN_RON), "Initial state for 10 RON is faulty");
-        assertEquals(50, tester.getBillsQuantityByType(Bill.Type.FIFTY_RON), "Initial state for 50 RON is faulty");
-        assertEquals(50, tester.getBillsQuantityByType(Bill.Type.ONEHUNDRED_RON), "Initial state for 100 RON is faulty");
+    public void assertBillsQuantityHelper(int[] baseArray, String errorMsg, AutomaticTellerMachine tester) {
+        int cont = 0;
+        for (Bill.Type billType : Bill.Type.values()) {
+            assertEquals(baseArray[cont++], tester.getBillsQuantityByType(billType), errorMsg);
+        }
     }
 
     @Test
-    public void fillUpChecker(){
+    public void initialStateChecker() {
+        AutomaticTellerMachine tester = new AutomaticTellerMachine();
+        int[] bills = {100, 100, 100, 50, 50};
+        assertBillsQuantityHelper(bills, "Initial state is faulty", tester);
+    }
+
+    @Test
+    public void fillUpChecker() {
         AutomaticTellerMachine tester = new AutomaticTellerMachine();
         tester.fillUp(Bill.Type.ONE_RON, 10);
         tester.fillUp(Bill.Type.FIVE_RON, 10);
@@ -37,41 +41,33 @@ public class AutomaticTellerMachineTest {
         tester.fillUp(Bill.Type.FIFTY_RON, 10);
         tester.fillUp(Bill.Type.ONEHUNDRED_RON, 10);
 
-        assertEquals(110, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Fill up for 1 RON is faulty");
-        assertEquals(110, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Fill up for 5 RON is faulty");
-        assertEquals(110, tester.getBillsQuantityByType(Bill.Type.TEN_RON), "Fill up for 10 RON is faulty");
-        assertEquals(60, tester.getBillsQuantityByType(Bill.Type.FIFTY_RON), "Fill up for 50 RON is faulty");
-        assertEquals(60, tester.getBillsQuantityByType(Bill.Type.ONEHUNDRED_RON), "Fill up for 100 RON is faulty");
+        int[] bills = {110, 110, 110, 60, 60};
+        assertBillsQuantityHelper(bills, "Fill up is faulty", tester);
     }
 
     @Test
-    public void modifyNrBillsChecker(){
+    public void modifyNrBillsChecker() {
         AutomaticTellerMachine tester = new AutomaticTellerMachine();
-        int []bills = {5, 1, 2, 3, 4};
+        int[] bills = {5, 1, 2, 3, 4};
+
         tester.modifyAllBills(bills, 1);
 
-        assertEquals(105, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Initial state for 1 RON is faulty");
-        assertEquals(101, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Initial state for 5 RON is faulty");
-        assertEquals(102, tester.getBillsQuantityByType(Bill.Type.TEN_RON), "Initial state for 10 RON is faulty");
-        assertEquals(53, tester.getBillsQuantityByType(Bill.Type.FIFTY_RON), "Initial state for 50 RON is faulty");
-        assertEquals(54, tester.getBillsQuantityByType(Bill.Type.ONEHUNDRED_RON), "Initial state for 100 RON is faulty");
+        setArray(bills, 105, 101, 102, 53, 54);
+        assertBillsQuantityHelper(bills, "Modify all bills is faulty", tester);
 
+        setArray(bills, 5, 1, 2, 3, 4);
         tester.modifyAllBills(bills, -1);
 
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Initial state for 1 RON is faulty");
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Initial state for 5 RON is faulty");
-        assertEquals(100, tester.getBillsQuantityByType(Bill.Type.TEN_RON), "Initial state for 10 RON is faulty");
-        assertEquals(50, tester.getBillsQuantityByType(Bill.Type.FIFTY_RON), "Initial state for 50 RON is faulty");
-        assertEquals(50, tester.getBillsQuantityByType(Bill.Type.ONEHUNDRED_RON), "Initial state for 100 RON is faulty");
-
+        setArray(bills, 100, 100, 100, 50, 50);
+        assertBillsQuantityHelper(bills, "Initial state is faulty", tester);
 
     }
 
     @Test
-    public void multipleWithdrawalRequestsChecker(){
+    public void multipleWithdrawalRequestsChecker() {
         AutomaticTellerMachine tester = new AutomaticTellerMachine();
         int[] bills = new int[5];
-        tester.setATMState(10,9,5,1,1);
+        tester.setATMState(10, 9, 5, 1, 1);
 
         setArray(bills, 0, 0, 0, 1, 1);
         assertArrayEquals(bills, tester.withdrawalRequest(150));
@@ -83,7 +79,7 @@ public class AutomaticTellerMachineTest {
         assertArrayEquals(bills, tester.withdrawalRequest(50));
 
 
-        tester.setATMState(10,9,5,3,10);
+        tester.setATMState(10, 9, 5, 3, 10);
 
         setArray(bills, 3, 1, 1, 1, 9);
         assertArrayEquals(bills, tester.withdrawalRequest(968));
