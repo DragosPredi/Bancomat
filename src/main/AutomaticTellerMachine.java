@@ -14,7 +14,8 @@ public class AutomaticTellerMachine {
 
     /**
      * Add cash to ATM
-     * @param type -> type of bill to be added
+     *
+     * @param type     -> type of bill to be added
      * @param quantity -> number of bills
      */
     public void fillUp(Bill.Type type, int quantity) {
@@ -24,10 +25,11 @@ public class AutomaticTellerMachine {
 
     /**
      * Getter for the amount of a certain type of bill
+     *
      * @param type -> bill to be investigated
      * @return -> number of bills of requested type
      */
-    public int getBillsQuantityByType(Bill.Type type){
+    public int getBillsQuantityByType(Bill.Type type) {
         return numberOfBillsByType.get(type);
     }
 
@@ -39,27 +41,27 @@ public class AutomaticTellerMachine {
      * (1, 5, 10, 50, 100)
      *
      * @param billsToBeModified -> array conatining the number of bills to be modified
-     * @param sign -> +1 for adding, -1 for removing
+     * @param sign              -> +1 for adding, -1 for removing
      */
-    public void fillUpAllBills(int []billsToBeModified, int sign){
+    public void modifyAllBills(int[] billsToBeModified, int sign) {
         assert (sign == -1 || sign == 1) : "Invalid sign";
 
-        fillUp(Bill.Type.ONE_RON, (sign * billsToBeModified[0]));
-        fillUp(Bill.Type.FIVE_RON,  (sign * billsToBeModified[1]));
-        fillUp(Bill.Type.TEN_RON, (sign * billsToBeModified[2]));
-        fillUp(Bill.Type.FIFTY_RON, (sign * billsToBeModified[3]));
-        fillUp(Bill.Type.ONEHUNDRED_RON, (sign * billsToBeModified[4]));
+        int cont = 0;
+        for (Bill.Type billType : Bill.Type.values()) {
+            fillUp(billType, (sign * billsToBeModified[cont++]));
+        }
     }
 
     /**
      * Set the ATM with a specified number of cash
-     * @param one -> number of 1 RON bills
-     * @param five -> number of 5 RON bills
-     * @param ten -> number of 10 RON bills
-     * @param fifty -> number of 50 RON bills
+     *
+     * @param one        -> number of 1 RON bills
+     * @param five       -> number of 5 RON bills
+     * @param ten        -> number of 10 RON bills
+     * @param fifty      -> number of 50 RON bills
      * @param oneHundred -> number of 100 RON bills
      */
-    public void setATMState(int one, int five, int ten, int fifty, int oneHundred){
+    public void setATMState(int one, int five, int ten, int fifty, int oneHundred) {
         numberOfBillsByType.put(Bill.Type.ONE_RON, one);
         numberOfBillsByType.put(Bill.Type.FIVE_RON, five);
         numberOfBillsByType.put(Bill.Type.TEN_RON, ten);
@@ -74,7 +76,7 @@ public class AutomaticTellerMachine {
      * @param type -> bill type to be converted
      * @return -> index in array
      */
-    public int billToArrayIndex(Bill.Type type){
+    public int billToArrayIndex(Bill.Type type) {
         return switch (type.getLabelValue()) {
             case 1 -> 0;
             case 5 -> 1;
@@ -83,6 +85,33 @@ public class AutomaticTellerMachine {
             case 100 -> 4;
             default -> -1;
         };
+    }
+
+    /**
+     * Function that determines the combination of bills used
+     * for the current amount of cash that is being computed
+     *
+     * @param billsUsedHistory -> the combination of bills used for all amounts up until that point
+     * @param currentAmount    -> the amount currently being computed
+     * @param billType         -> the bill added to form the current amount of cash
+     */
+    public void computeBillsUsed(int[][] billsUsedHistory, int currentAmount, Bill.Type billType) {
+        int billValue = billType.getLabelValue();
+
+        //Add last combination of bills no longer available
+        if (billType == Bill.Type.ONE_RON) {
+            modifyAllBills(billsUsedHistory[currentAmount - 1], 1);
+        } else {
+            modifyAllBills(billsUsedHistory[currentAmount], 1);
+        }
+        //Get base combination
+        System.arraycopy(billsUsedHistory[currentAmount - billValue],
+                0, billsUsedHistory[currentAmount], 0, 5);
+        //Add the bill used
+        billsUsedHistory[currentAmount][billToArrayIndex(billType)] =
+                billsUsedHistory[currentAmount - billValue][billToArrayIndex(billType)] + 1;
+        //Subtract combination from ATM cash
+        modifyAllBills(billsUsedHistory[currentAmount], -1);
     }
 
     /**
@@ -97,9 +126,10 @@ public class AutomaticTellerMachine {
      * @param cashAmount -> amount requested
      * @return -> array with the bills requested or -1 in case of failure
      */
-    public int[] withdrawalRequest(int cashAmount){
-        int []numberOfBillsNeeded = new int[cashAmount + 1];
-        int [][]billsUsedForEachIteration = new int[cashAmount + 1][5];
+    public int[] withdrawalRequest(int cashAmount) {
+
+        int[] numberOfBillsNeeded = new int[cashAmount + 1];
+        int[][] billsUsedHistory = new int[cashAmount + 1][5];
 
         Arrays.fill(numberOfBillsNeeded, Integer.MAX_VALUE);
         numberOfBillsNeeded[0] = 0;
@@ -111,28 +141,15 @@ public class AutomaticTellerMachine {
                     int rest = numberOfBillsNeeded[currentAmount - billValue];
                     if (rest != Integer.MAX_VALUE && rest + 1 < numberOfBillsNeeded[currentAmount]) {
                         numberOfBillsNeeded[currentAmount] = rest + 1;
-
-                        if(billType == Bill.Type.ONE_RON) {
-                            fillUpAllBills(billsUsedForEachIteration[currentAmount - 1], 1);
-                        } else {
-                            fillUpAllBills(billsUsedForEachIteration[currentAmount], 1);
-                        }
-
-                        System.arraycopy(billsUsedForEachIteration[currentAmount - billValue],
-                                0, billsUsedForEachIteration[currentAmount], 0, 5);
-
-                        billsUsedForEachIteration[currentAmount][billToArrayIndex(billType)] =
-                                billsUsedForEachIteration[currentAmount - billValue][billToArrayIndex(billType)] + 1;
-
-                        fillUpAllBills(billsUsedForEachIteration[currentAmount], -1);
+                        computeBillsUsed(billsUsedHistory, currentAmount, billType);
                     }
                 }
             }
         }
 
-        if(numberOfBillsNeeded[cashAmount] == Integer.MAX_VALUE){
-            Arrays.fill(billsUsedForEachIteration[cashAmount], Integer.MAX_VALUE);
+        if (numberOfBillsNeeded[cashAmount] == Integer.MAX_VALUE) {
+            Arrays.fill(billsUsedHistory[cashAmount], Integer.MAX_VALUE);
         }
-        return billsUsedForEachIteration[cashAmount];
+        return billsUsedHistory[cashAmount];
     }
 }

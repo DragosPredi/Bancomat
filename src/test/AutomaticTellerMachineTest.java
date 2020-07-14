@@ -48,7 +48,7 @@ public class AutomaticTellerMachineTest {
     public void modifyNrBillsChecker(){
         AutomaticTellerMachine tester = new AutomaticTellerMachine();
         int []bills = {5, 1, 2, 3, 4};
-        tester.fillUpAllBills(bills, 1);
+        tester.modifyAllBills(bills, 1);
 
         assertEquals(105, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Initial state for 1 RON is faulty");
         assertEquals(101, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Initial state for 5 RON is faulty");
@@ -56,7 +56,7 @@ public class AutomaticTellerMachineTest {
         assertEquals(53, tester.getBillsQuantityByType(Bill.Type.FIFTY_RON), "Initial state for 50 RON is faulty");
         assertEquals(54, tester.getBillsQuantityByType(Bill.Type.ONEHUNDRED_RON), "Initial state for 100 RON is faulty");
 
-        tester.fillUpAllBills(bills, -1);
+        tester.modifyAllBills(bills, -1);
 
         assertEquals(100, tester.getBillsQuantityByType(Bill.Type.ONE_RON), "Initial state for 1 RON is faulty");
         assertEquals(100, tester.getBillsQuantityByType(Bill.Type.FIVE_RON), "Initial state for 5 RON is faulty");
