@@ -1,43 +1,6 @@
 package main;
 
-import main.bills.Bill;
-
-import java.util.InputMismatchException;
-import java.util.Scanner;
-
 public class Driver {
-    /**
-     * Continuously asks the user for input until it receives an Int
-     * @return -> int
-     */
-    public static int readPositiveInt() {
-        Scanner scanner = new Scanner(System.in);
-        int cashAmount = -1;
-        try {
-            cashAmount = scanner.nextInt();
-            if(cashAmount <= 0){
-                throw new InputMismatchException();
-            }
-        } catch (InputMismatchException e) {
-            System.out.println("It would seem the input was faulty, please try again!");
-        }
-        return cashAmount;
-    }
-
-    /**
-     * Helper function to print in human readable format the bills requested
-     * @param bills -> the bills used
-     */
-    public static void printBills(int[] bills) {
-        int cont = 0;
-        if (bills[cont] == Integer.MAX_VALUE) {
-            System.out.println("The ATM is out of cash, please try again later!");
-        } else {
-            for (Bill.Type billType : Bill.Type.values()) {
-                System.out.println("Number of " + billType + " is " + bills[cont++]);
-            }
-        }
-    }
 
     /**
      * Helper function to complete the transaction, it takes an ATM obj
@@ -48,15 +11,10 @@ public class Driver {
 
         int cashAmount;
         do {
-            cashAmount = readPositiveInt();
+            cashAmount = Utils.readPositiveInt();
         } while (cashAmount <= 0);
 
-        printBills(ATM.withdrawalRequest(cashAmount));
-    }
-
-    public static String readString(){
-        Scanner sc = new Scanner(System.in);
-        return sc.nextLine();
+        Utils.printBills(ATM.withdrawalRequest(cashAmount));
     }
 
     public static void main(String[] args) {
@@ -65,7 +23,7 @@ public class Driver {
             System.out.println("What sum would you like to withdraw? Please enter a positive number");
             transaction(ATM);
             System.out.println("Thank you for choosing our services, would you like to try again? (yes/no)");
-        } while (readString().equals("yes"));
+        } while (Utils.readString().equals("yes"));
 
     }
 }
