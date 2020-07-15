@@ -39,9 +39,13 @@ public class Utils {
         }
     }
 
-
     public static String readString(){
         Scanner sc = new Scanner(System.in);
         return sc.nextLine();
     }
+
+    public static void sendEmail(String emailAddr, String emailContent){
+        System.out.println(emailContent + "sent to " + emailAddr);
+    }
+
 }

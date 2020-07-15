@@ -15,6 +15,7 @@ public class Driver {
         } while (cashAmount <= 0);
 
         Utils.printBills(ATM.withdrawalRequest(cashAmount));
+        CashManager.checkATMBalance(ATM);
     }
 
     public static void main(String[] args) {
